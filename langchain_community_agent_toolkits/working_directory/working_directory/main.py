@@ -22,6 +22,8 @@ def main():
         elements.append(element)
     element_color = (255, 0, 0)
 
+    angle_offset = 0  # 旋转角度偏移
+
     running = True
     while running:
         for event in pygame.event.get():
@@ -39,9 +41,10 @@ def main():
         if keys[pygame.K_DOWN]:
             player.y += 5
 
-        # 更新围绕元素的位置
+        # 更新围绕元素的位置，并添加旋转效果
+        angle_offset += 0.02  # 旋转速度
         for i, element in enumerate(elements):
-            angle = 2 * math.pi * i / 10
+            angle = 2 * math.pi * i / 10 + angle_offset
             distance = 100
             element.x = player.centerx + distance * math.cos(angle) - element.width / 2
             element.y = player.centery + distance * math.sin(angle) - element.height / 2

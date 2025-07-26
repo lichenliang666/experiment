@@ -1,6 +1,0 @@
-[project]
-name = "bird"
-version = "0.1.0"
-dependencies = ["pygame"]
-
-[tool.uv]

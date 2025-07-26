@@ -9,4 +9,5 @@ dependencies = [
     "langchain-deepseek>=0.1.4",
     "langgraph>=0.5.4",
     "pygame>=2.6.1",
+    "streamlit>=1.47.1",
 ]

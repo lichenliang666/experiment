@@ -1,5 +1,5 @@
 [project]
-name = "working_directory"
+name = "ball"
 version = "0.1.0"
 dependencies = ["pygame"]
 

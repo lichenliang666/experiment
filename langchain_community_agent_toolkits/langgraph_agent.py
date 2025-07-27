@@ -20,7 +20,6 @@ def get_tools(project_dir: str):
     return toolkit.get_tools()
 
 # 创建 Agent
-
 def build_agent(model, tools):
     return create_react_agent(
         model=model,
@@ -29,7 +28,6 @@ def build_agent(model, tools):
     )
 
 # 构建 LangGraph StateGraph
-
 def build_graph(agent):
     builder = StateGraph()
     builder.add_node("agent", agent)
@@ -37,8 +35,7 @@ def build_graph(agent):
     builder.add_edge("agent", END)
     return builder.compile()
 
-# 外部调用函数（供 app.py 使用）
-
+# 主处理逻辑（可以被 run_game_agent 调用）
 def generate_or_modify_code(project_dir: str, user_input: str, mode: Literal["new", "modify"]) -> str:
     os.makedirs(project_dir, exist_ok=True)
     model = get_model()
@@ -59,7 +56,11 @@ def generate_or_modify_code(project_dir: str, user_input: str, mode: Literal["ne
     else:
         return "main.py 未生成或不存在。"
 
+# 为 app.py 暴露的统一接口
+def run_game_agent(project_dir: str, user_input: str, mode: Literal["new", "modify"]) -> str:
+    return generate_or_modify_code(project_dir, user_input, mode)
+
 # 示例用法
 if __name__ == "__main__":
-    result = generate_or_modify_code("projects/test_game", "创建一个有可移动角色的2D游戏", mode="new")
+    result = run_game_agent("projects/test_game", "创建一个有可移动角色的2D游戏", mode="new")
     print(result)

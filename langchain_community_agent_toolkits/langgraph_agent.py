@@ -6,6 +6,8 @@ from langchain_community.agent_toolkits import FileManagementToolkit
 from langchain_deepseek import ChatDeepSeek
 from pathlib import Path
 from typing import Literal
+from pydantic import BaseModel
+from typing import Optional
 import os
 
 # 初始化模型
@@ -16,7 +18,7 @@ def get_model():
 def get_tools(project_dir: str):
     root = Path(project_dir)
     root.mkdir(parents=True, exist_ok=True)
-    toolkit = FileManagementToolkit(root_dir=root)
+    toolkit = FileManagementToolkit(root_dir=str(root))
     return toolkit.get_tools()
 
 # 创建 Agent
@@ -27,9 +29,13 @@ def build_agent(model, tools):
         prompt="你是一个游戏项目生成与修改助手，用户会告诉你他们想要的新游戏内容，或者对已有游戏的修改，你要调用文件工具完成操作。"
     )
 
+class AgentState(BaseModel):
+    input: str
+    output: Optional[str] = None
+
 # 构建 LangGraph StateGraph
 def build_graph(agent):
-    builder = StateGraph()
+    builder = StateGraph(AgentState)
     builder.add_node("agent", agent)
     builder.set_entry_point("agent")
     builder.add_edge("agent", END)
@@ -43,14 +49,13 @@ def generate_or_modify_code(project_dir: str, user_input: str, mode: Literal["ne
     agent = build_agent(model, tools)
     graph = build_graph(agent)
 
-    messages = [
-        HumanMessage(content=f"我想要 {'创建一个新游戏：' if mode == 'new' else '修改这个游戏：'}{user_input}")
-    ]
-
     config = RunnableConfig(configurable={"recursion_limit": 5})
-    result = graph.invoke({"messages": messages}, config=config)
+    user_text = f"我想要 {'创建一个新游戏：' if mode == 'new' else '修改这个游戏：'}{user_input}"
+    print(f"user_text: {user_text}")
+    graph.invoke({"input": user_text}, config=config)
 
     main_path = Path(project_dir) / "main.py"
+    print(f"main_path: {main_path}")
     if main_path.exists():
         return main_path.read_text(encoding="utf-8")
     else:
